@@ -1,26 +1,28 @@
+PRAGMA foreign_keys = ON;
+
 -- Tabela bairros
 CREATE TABLE IF NOT EXISTS bairros (
-    bairro_popular_id SERIAL PRIMARY KEY,
+    bairro_popular_id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome_bairro_popular TEXT
 );
 
 -- Tabela regioes
 CREATE TABLE IF NOT EXISTS regioes (
-    regiao_id SERIAL PRIMARY KEY,
-    nome_regiao VARCHAR(20)
+    regiao_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome_regiao TEXT
 );
 
 -- Tabela familias_cras
 CREATE TABLE IF NOT EXISTS familias_cras (
-    nome_regiao VARCHAR(20),
-    cras VARCHAR(50),
+    nome_regiao TEXT,
+    cras TEXT,
     qtde_familias INTEGER,
-    mes_ano_referencia VARCHAR(10)
+    mes_ano_referencia TEXT
 );
 
 -- Tabela rede_municipal_escolas
 CREATE TABLE IF NOT EXISTS rede_municipal_escolas (
-    id_equip_educacao SERIAL PRIMARY KEY,
+    id_equip_educacao INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT,
     dependencia_adm TEXT,
     codigo_inep INTEGER,
@@ -29,16 +31,16 @@ CREATE TABLE IF NOT EXISTS rede_municipal_escolas (
     numero INTEGER,
     complemento REAL,
     nome_bairro_popular TEXT,
-    nome_regiao VARCHAR(255),
+    nome_regiao TEXT,
     geometria TEXT
 );
 
 -- Tabela abrangencia_saude
 CREATE TABLE IF NOT EXISTS abrangencia_saude (
-    id_area_abrangencia_saude SERIAL PRIMARY KEY,
+    id_area_abrangencia_saude INTEGER PRIMARY KEY AUTOINCREMENT,
     cod_smsa INTEGER,
     nome_area_abrangencia TEXT,
-    nome_regiao VARCHAR(255),
+    nome_regiao TEXT,
     nome_centro_saude TEXT,
     tipo_logradouro_cs TEXT,
     nome_logradouro_cs TEXT,
@@ -51,13 +53,13 @@ CREATE TABLE IF NOT EXISTS abrangencia_saude (
 
 -- Tabela equipamentos_esportivos
 CREATE TABLE IF NOT EXISTS equipamentos_esportivos (
-    id_eq_esp SERIAL PRIMARY KEY,
+    id_eq_esp INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT,
     nome_popular TEXT,
     tipo TEXT,
     tipo_logradouro TEXT,
     logradouro TEXT,
-    numero NUMERIC(10,2),
+    numero NUMERIC,
     complemento TEXT,
     nome_bairro_popular TEXT,
     ref_logradouro TEXT,
@@ -1754,9 +1756,8 @@ INSERT INTO equipamentos_esportivos VALUES(1528,'ACADEMIA DA PRAÃA RAMATIS',N
 INSERT INTO equipamentos_esportivos VALUES(1612,'ACADEMIA DA PRAÃA ELIAS KALIL',NULL,'ACADEMIA A CÃU ABERTO','PRACA','ELIAS KALIL',NULL,NULL,'GARÃAS','ESQUINA RUA OLGA FRATEZZI','POINT (604810.29 7805984.97)',NULL);
 INSERT INTO equipamentos_esportivos VALUES(1394,'ACADEMIA DA PRAÃA DO SOL NASCENTE',NULL,'ACADEMIA A CÃU ABERTO','PRACA','DO SOL NASCENTE',NULL,NULL,'CONJUNTO CELSO MACHADO','ENTRE RUAS AURELÃNDIA E LITORÃNEA','POINT (603714.94 7800622.30)',NULL);
 
-
 -- Inserir dados únicos de bairros a partir das tabelas existentes
-INSERT INTO bairros (nome_bairro_popular)
+INSERT OR IGNORE INTO bairros (nome_bairro_popular)
 SELECT DISTINCT nome FROM (
     SELECT nome_bairro_popular AS nome FROM rede_municipal_escolas
     UNION
@@ -1766,7 +1767,7 @@ SELECT DISTINCT nome FROM (
 ) AS bairros_exist;
 
 -- Inserir dados únicos de regiões a partir das tabelas existentes
-INSERT INTO regioes (nome_regiao)
+INSERT OR IGNORE INTO regioes (nome_regiao)
 SELECT DISTINCT nome_regiao FROM (
     SELECT nome_regiao FROM rede_municipal_escolas
     UNION
@@ -1781,12 +1782,16 @@ ADD COLUMN regiao_id INTEGER;
 
 -- Para a tabela rede_municipal_escolas
 ALTER TABLE rede_municipal_escolas
-ADD COLUMN bairro_popular_id INTEGER,
+ADD COLUMN bairro_popular_id INTEGER;
+
+ALTER TABLE rede_municipal_escolas
 ADD COLUMN regiao_id INTEGER;
 
 -- Para a tabela abrangencia_saude
 ALTER TABLE abrangencia_saude
-ADD COLUMN bairro_popular_id INTEGER,
+ADD COLUMN bairro_popular_id INTEGER;
+
+ALTER TABLE abrangencia_saude
 ADD COLUMN regiao_id INTEGER;
 
 -- Para a tabela equipamentos_esportivos
@@ -1841,20 +1846,3 @@ SET bairro_popular_id = (
 )
 WHERE nome_bairro_popular IS NOT NULL;
 
--- Para a tabela familias_cras
-ALTER TABLE familias_cras
-ADD CONSTRAINT fk_regional_cras FOREIGN KEY (regiao_id) REFERENCES regioes (regiao_id);
-
--- Para a tabela rede_municipal_escolas
-ALTER TABLE rede_municipal_escolas
-ADD CONSTRAINT fk_bairro_escolas FOREIGN KEY (bairro_popular_id) REFERENCES bairros (bairro_popular_id),
-ADD CONSTRAINT fk_regional_escolas FOREIGN KEY (regiao_id) REFERENCES regioes (regiao_id);
-
--- Para a tabela abrangencia_saude
-ALTER TABLE abrangencia_saude
-ADD CONSTRAINT fk_bairro_saude FOREIGN KEY (bairro_popular_id) REFERENCES bairros (bairro_popular_id),
-ADD CONSTRAINT fk_regional_saude FOREIGN KEY (regiao_id) REFERENCES regioes (regiao_id);
-
--- Para a tabela equipamentos_esportivos
-ALTER TABLE equipamentos_esportivos
-ADD CONSTRAINT fk_bairro_esportivos FOREIGN KEY (bairro_popular_id) REFERENCES bairros (bairro_popular_id);
