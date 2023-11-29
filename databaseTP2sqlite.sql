@@ -1760,6 +1760,56 @@ INSERT INTO equipamentos_esportivos VALUES(1528,'ACADEMIA DA PRAÃA RAMATIS',N
 INSERT INTO equipamentos_esportivos VALUES(1612,'ACADEMIA DA PRAÃA ELIAS KALIL',NULL,'ACADEMIA A CÃU ABERTO','PRACA','ELIAS KALIL',NULL,NULL,'GARÃAS','ESQUINA RUA OLGA FRATEZZI','POINT (604810.29 7805984.97)',NULL);
 INSERT INTO equipamentos_esportivos VALUES(1394,'ACADEMIA DA PRAÃA DO SOL NASCENTE',NULL,'ACADEMIA A CÃU ABERTO','PRACA','DO SOL NASCENTE',NULL,NULL,'CONJUNTO CELSO MACHADO','ENTRE RUAS AURELÃNDIA E LITORÃNEA','POINT (603714.94 7800622.30)',NULL);
 
+BEGIN TRANSACTION;
+CREATE TABLE equipamentos_esportivos_new AS
+SELECT 
+    id_eq_esp,
+    nome,
+    nome_popular,
+    tipo,
+    nome_bairro_popular,
+    complemento
+FROM equipamentos_esportivos;
+DROP TABLE equipamentos_esportivos;
+ALTER TABLE equipamentos_esportivos_new RENAME TO equipamentos_esportivos;
+COMMIT;
+
+BEGIN TRANSACTION;
+CREATE TABLE rede_municipal_escolas_new AS
+SELECT 
+    id_equip_educacao,
+    nome,
+    nome_bairro_popular,
+    nome_regiao
+FROM rede_municipal_escolas;
+DROP TABLE rede_municipal_escolas;
+ALTER TABLE rede_municipal_escolas_new RENAME TO rede_municipal_escolas;
+COMMIT;
+
+CREATE TABLE abrangencia_saude_new AS
+SELECT 
+    id_area_abrangencia_saude,
+    cod_smsa,
+    nome_area_abrangencia,
+    nome_regiao,
+    nome_centro_saude,
+    nome_bairro_popular
+FROM abrangencia_saude;
+DROP TABLE abrangencia_saude;
+ALTER TABLE abrangencia_saude_new RENAME TO abrangencia_saude;
+COMMIT;
+
+BEGIN TRANSACTION;
+CREATE TABLE familias_cras_new AS
+SELECT 
+    nome_regiao,
+    qtde_familias,
+    mes_ano_referencia
+FROM familias_cras;
+DROP TABLE familias_cras;
+ALTER TABLE familias_cras_new RENAME TO familias_cras;
+COMMIT;
+
 -- Inserir dados únicos de bairros a partir das tabelas existentes
 INSERT OR IGNORE INTO bairros (nome_bairro_popular)
 SELECT DISTINCT nome FROM (
@@ -1849,53 +1899,3 @@ SET bairro_popular_id = (
     WHERE b.nome_bairro_popular = equipamentos_esportivos.nome_bairro_popular
 )
 WHERE nome_bairro_popular IS NOT NULL;
-
-BEGIN TRANSACTION;
-CREATE TABLE equipamentos_esportivos_new AS
-SELECT 
-    id_eq_esp,
-    nome,
-    nome_popular,
-    tipo,
-    nome_bairro_popular,
-    complemento
-FROM equipamentos_esportivos;
-DROP TABLE equipamentos_esportivos;
-ALTER TABLE equipamentos_esportivos_new RENAME TO equipamentos_esportivos;
-COMMIT;
-
-BEGIN TRANSACTION;
-CREATE TABLE rede_municipal_escolas_new AS
-SELECT 
-    id_equip_educacao,
-    nome,
-    nome_bairro_popular,
-    nome_regiao
-FROM rede_municipal_escolas;
-DROP TABLE rede_municipal_escolas;
-ALTER TABLE rede_municipal_escolas_new RENAME TO rede_municipal_escolas;
-COMMIT;
-
-CREATE TABLE abrangencia_saude_new AS
-SELECT 
-    id_area_abrangencia_saude,
-    cod_smsa,
-    nome_area_abrangencia,
-    nome_regiao,
-    nome_centro_saude,
-    nome_bairro_popular
-FROM abrangencia_saude;
-DROP TABLE abrangencia_saude;
-ALTER TABLE abrangencia_saude_new RENAME TO abrangencia_saude;
-COMMIT;
-
-BEGIN TRANSACTION;
-CREATE TABLE familias_cras_new AS
-SELECT 
-    nome_regiao,
-    qtde_familias,
-    mes_ano_referencia
-FROM familias_cras;
-DROP TABLE familias_cras;
-ALTER TABLE familias_cras_new RENAME TO familias_cras;
-COMMIT;
