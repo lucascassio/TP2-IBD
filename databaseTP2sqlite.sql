@@ -1850,3 +1850,52 @@ SET bairro_popular_id = (
 )
 WHERE nome_bairro_popular IS NOT NULL;
 
+BEGIN TRANSACTION;
+CREATE TABLE equipamentos_esportivos_new AS
+SELECT 
+    id_eq_esp,
+    nome,
+    nome_popular,
+    tipo,
+    nome_bairro_popular,
+    complemento
+FROM equipamentos_esportivos;
+DROP TABLE equipamentos_esportivos;
+ALTER TABLE equipamentos_esportivos_new RENAME TO equipamentos_esportivos;
+COMMIT;
+
+BEGIN TRANSACTION;
+CREATE TABLE rede_municipal_escolas_new AS
+SELECT 
+    id_equip_educacao,
+    nome,
+    nome_bairro_popular,
+    nome_regiao
+FROM rede_municipal_escolas;
+DROP TABLE rede_municipal_escolas;
+ALTER TABLE rede_municipal_escolas_new RENAME TO rede_municipal_escolas;
+COMMIT;
+
+CREATE TABLE abrangencia_saude_new AS
+SELECT 
+    id_area_abrangencia_saude,
+    cod_smsa,
+    nome_area_abrangencia,
+    nome_regiao,
+    nome_centro_saude,
+    nome_bairro_popular
+FROM abrangencia_saude;
+DROP TABLE abrangencia_saude;
+ALTER TABLE abrangencia_saude_new RENAME TO abrangencia_saude;
+COMMIT;
+
+BEGIN TRANSACTION;
+CREATE TABLE familias_cras_new AS
+SELECT 
+    nome_regiao,
+    qtde_familias,
+    mes_ano_referencia
+FROM familias_cras;
+DROP TABLE familias_cras;
+ALTER TABLE familias_cras_new RENAME TO familias_cras;
+COMMIT;
